@@ -1,3 +1,6 @@
+# Transpiler-GoToCpp
+
+
 //input 1 
 
 package main
@@ -64,4 +67,3 @@ func main() {
 - [ ] `strings.Split`
 - [ ] `strings.SplitN`
 - [x] `strings.TrimSpace`
-# Transpiler-GoToCpp
