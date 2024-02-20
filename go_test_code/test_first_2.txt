@@ -1,0 +1,24 @@
+package main
+
+import "fmt"
+
+func main() {
+    // Declare and initialize variables
+    var length int = 10
+    var width int = 5
+
+    // Calculate area and perimeter of a rectangle
+    area := length * width
+    perimeter := 2 * (length + width)
+
+    // Print results
+    fmt.Println("Area of rectangle:", area)
+    fmt.Println("Perimeter of rectangle:", perimeter)
+
+    // Check if area is greater than perimeter
+    if area > perimeter {
+        fmt.Println("Area is greater than perimeter.")
+    } else {
+        fmt.Println("Perimeter is greater than or equal to area.")
+    }
+}

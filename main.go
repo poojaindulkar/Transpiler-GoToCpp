@@ -10,11 +10,219 @@ import (
 	"strconv"
 	"strings"
 
+	_ "fmt"
+	"regexp"
+
 	"github.com/poojaindulkar/Transpiler-GoToCpp/src/constants"
 	"github.com/poojaindulkar/Transpiler-GoToCpp/src/replacements"
 	"github.com/poojaindulkar/Transpiler-GoToCpp/src/utils"
-	
 )
+
+/************************************************************ Lexer Start *******************************************************************/
+
+type Token struct {
+	Type  string
+	Value string
+}
+
+type Lexer struct {
+	input  string
+	pos    int
+	tokens []Token
+}
+
+func NewLexer(input string) *Lexer {
+	return &Lexer{input: input, pos: 0}
+}
+
+func (l *Lexer) NextToken() *Token {
+	if l.pos >= len(l.input) {
+		return nil
+	}
+
+	// Match regular expressions to identify tokens
+
+	re := regexp.MustCompile(`([[:space:]]+)|([a-zA-Z]+)|([0-9]+)|([+\-*/%=])|(\(|\))|(\{|\})`)
+	if match := re.FindStringIndex(l.input[l.pos:]); match != nil {
+		l.pos += match[1]
+		tokenType := ""
+		tokenValue := l.input[l.pos-match[1] : l.pos]
+
+		switch tokenValue {
+		case "package main":
+			tokenType = "package"
+		case "func":
+			tokenType = "Func"
+		case "main":
+			tokenType = "main"
+		case "(":
+			tokenType = "OpenParen"
+		case ")":
+			tokenType = "CloseParen"
+		case "{":
+			tokenType = "OpenBrace"
+		case "}":
+			tokenType = "CloseBrace"
+		case "+":
+			tokenType = "Plus"
+		case "-":
+			tokenType = "Minus"
+		case "*":
+			tokenType = "Asterisk"
+		case "/":
+			tokenType = "Slash"
+		case "=":
+			tokenType = "Equals"
+		case " ":
+			tokenType = "blank space"
+		case "\"":
+			tokenType = "double quotes"
+		case "fmt.Println":
+			tokenType = "print function"
+		default:
+			tokenType = "identifier"
+		}
+
+		return &Token{Type: tokenType, Value: tokenValue}
+	}
+
+	// If no regular expression matches, return an error token
+
+	return &Token{Type: "Error", Value: string(l.input[l.pos])}
+}
+
+func LEX(input string) {
+
+	var res []Token
+
+	//	i:=0
+	l := NewLexer(input)
+	t := true
+	for token := l.NextToken(); token != nil; token = l.NextToken() {
+
+		if token.Value == "(" {
+			t = false
+		} else if token.Value == ")" {
+			t = true
+		}
+
+		if token.Value != " " && t == true {
+			//fmt.Printf("%s: %s\n", token.Type, token.Value)
+
+		} else if t == false {
+			//fmt.Printf("%s: %s\n", token.Type, token.Value)
+
+		}
+
+		if token.Value == " " || token.Value == "\n" || token.Value == "\t" {
+			continue
+		}
+
+		//		fmt.Printf("%s \n", token.Value)
+
+		res = append(res, Token{
+			Type:  token.Type,
+			Value: token.Value,
+		})
+	}
+	fmt.Println(res)
+
+	println("__________")
+
+	Ast(res)
+
+}
+
+/************************************************************ Lexer End *******************************************************************/
+
+/************************************************************ Parser Start *******************************************************************/
+type Tokenx struct {
+	Type  string
+	Value string
+}
+
+type Node struct {
+	Type     string
+	Value    string
+	Children []Node
+}
+
+func NewNode(Type string, Value string) *Node {
+	return &Node{Type: Type, Value: Value}
+}
+
+func AddChild(node *Node, child *Node) {
+	node.Children = append(node.Children, *child)
+}
+
+func ParseAST(tokens []Token) *Node {
+	root := NewNode("Root", "")
+
+	for _, token := range tokens {
+		switch token.Type {
+		case "package":
+			AddChild(root, NewNode("Idenpackagetifier", token.Value))
+		case "StringLiteral":
+			AddChild(root, NewNode("StringLiteral", token.Value))
+		case "NumberLiteral":
+			AddChild(root, NewNode("NumberLiteral", token.Value))
+		case "func":
+			AddChild(root, NewNode("func", token.Value))
+		case "main":
+			AddChild(root, NewNode("main", token.Value))
+
+		case "OpenParen":
+			AddChild(root, NewNode("OpenParen", token.Value))
+		case "CloseParen":
+			AddChild(root, NewNode("CloseParen", token.Value))
+		case "OpenBrace":
+			AddChild(root, NewNode("OpenBrace", token.Value))
+		case "CloseBrace":
+			AddChild(root, NewNode("CloseBrace", token.Value))
+		case "Plus":
+			AddChild(root, NewNode("Plus", token.Value))
+		case "Minus":
+			AddChild(root, NewNode("Minus", token.Value))
+		case "Asterisk":
+			AddChild(root, NewNode("Asterisk", token.Value))
+		case "Slash":
+			AddChild(root, NewNode("Slash", token.Value))
+		case "Equals":
+			AddChild(root, NewNode("Equals", token.Value))
+		case "blank space":
+			AddChild(root, NewNode("blank space", token.Value))
+		case "double quotes":
+			AddChild(root, NewNode("double quotes", token.Value))
+		case "print function":
+			AddChild(root, NewNode("print function", token.Value))
+
+		default:
+			AddChild(root, NewNode("identifier", token.Value))
+		}
+
+	}
+
+	return root
+}
+
+func PrintAST(node *Node, indent int) {
+	fmt.Printf("%s%s: %s\n", strings.Repeat(" ", indent), node.Type, node.Value)
+
+	for _, child := range node.Children {
+		PrintAST(&child, indent+1)
+	}
+}
+
+func Ast(T []Token) {
+	tokens := T
+
+	root := ParseAST(tokens)
+
+	// Print the AST tree.
+	PrintAST(root, 0)
+}
+
+/************************************************************ Parser End *******************************************************************/
 
 func go2cpp(source string) string {
 	functionVarMap := map[string]string{} // variable names encountered in the function so far, and their corresponding smart names
@@ -331,7 +539,7 @@ func main() {
 	compile := true
 	clangFormat := true
 
-	inputFilename := "./go_test_code/test2.txt"
+	inputFilename := "./go_test_code/test_first_1.txt"
 
 	var sourceData []byte
 	var err error
@@ -406,7 +614,8 @@ template <typename T>
 		cppSource = `#include <bits/stdc++.h>` + cppSource
 		cppSource = formatting(cppSource)
 		//fmt.Println(cppSource)
-		outputFileName := "cpp_test_output/" + strings.Split(inputFilename, "/")[2] + ".cpp"
+
+		outputFileName := "cpp_output/" + strings.TrimSuffix(strings.Split(inputFilename, "/")[2], ".txt") + ".cpp"
 		writeFile(outputFileName, cppSource)
 
 		// fmt.Println("Errors:")

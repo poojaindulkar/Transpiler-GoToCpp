@@ -1,0 +1,25 @@
+package main
+
+import "fmt"
+
+func main() {
+    // Declare variables
+    var x int
+    var y int
+
+    // Assign values
+    x = 10
+    y = 20
+
+    // Perform arithmetic operations
+    sum := x + y
+    difference := x - y
+    product := x * y
+    quotient := x / y
+
+    // Print results
+    fmt.Println("Sum:", sum)
+    fmt.Println("Difference:", difference)
+    fmt.Println("Product:", product)
+    fmt.Println("Quotient:", quotient)
+}
