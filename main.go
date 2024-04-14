@@ -4,225 +4,20 @@ import (
 	"bytes"
 	"fmt"
 	"io/ioutil"
+
+	_ "fmt"
 	"log"
+	"net/http"
 	"os"
 	"os/exec"
 	"strconv"
 	"strings"
 
-	_ "fmt"
-	"regexp"
-
+	"github.com/gin-gonic/gin"
 	"github.com/poojaindulkar/Transpiler-GoToCpp/src/constants"
 	"github.com/poojaindulkar/Transpiler-GoToCpp/src/replacements"
 	"github.com/poojaindulkar/Transpiler-GoToCpp/src/utils"
 )
-
-/************************************************************ Lexer Start *******************************************************************/
-
-type Token struct {
-	Type  string
-	Value string
-}
-
-type Lexer struct {
-	input  string
-	pos    int
-	tokens []Token
-}
-
-func NewLexer(input string) *Lexer {
-	return &Lexer{input: input, pos: 0}
-}
-
-func (l *Lexer) NextToken() *Token {
-	if l.pos >= len(l.input) {
-		return nil
-	}
-
-	// Match regular expressions to identify tokens
-
-	re := regexp.MustCompile(`([[:space:]]+)|([a-zA-Z]+)|([0-9]+)|([+\-*/%=])|(\(|\))|(\{|\})`)
-	if match := re.FindStringIndex(l.input[l.pos:]); match != nil {
-		l.pos += match[1]
-		tokenType := ""
-		tokenValue := l.input[l.pos-match[1] : l.pos]
-
-		switch tokenValue {
-		case "package main":
-			tokenType = "package"
-		case "func":
-			tokenType = "Func"
-		case "main":
-			tokenType = "main"
-		case "(":
-			tokenType = "OpenParen"
-		case ")":
-			tokenType = "CloseParen"
-		case "{":
-			tokenType = "OpenBrace"
-		case "}":
-			tokenType = "CloseBrace"
-		case "+":
-			tokenType = "Plus"
-		case "-":
-			tokenType = "Minus"
-		case "*":
-			tokenType = "Asterisk"
-		case "/":
-			tokenType = "Slash"
-		case "=":
-			tokenType = "Equals"
-		case " ":
-			tokenType = "blank space"
-		case "\"":
-			tokenType = "double quotes"
-		case "fmt.Println":
-			tokenType = "print function"
-		default:
-			tokenType = "identifier"
-		}
-
-		return &Token{Type: tokenType, Value: tokenValue}
-	}
-
-	// If no regular expression matches, return an error token
-
-	return &Token{Type: "Error", Value: string(l.input[l.pos])}
-}
-
-func LEX(input string) {
-
-	var res []Token
-
-	//	i:=0
-	l := NewLexer(input)
-	t := true
-	for token := l.NextToken(); token != nil; token = l.NextToken() {
-
-		if token.Value == "(" {
-			t = false
-		} else if token.Value == ")" {
-			t = true
-		}
-
-		if token.Value != " " && t == true {
-			//fmt.Printf("%s: %s\n", token.Type, token.Value)
-
-		} else if t == false {
-			//fmt.Printf("%s: %s\n", token.Type, token.Value)
-
-		}
-
-		if token.Value == " " || token.Value == "\n" || token.Value == "\t" {
-			continue
-		}
-
-		//		fmt.Printf("%s \n", token.Value)
-
-		res = append(res, Token{
-			Type:  token.Type,
-			Value: token.Value,
-		})
-	}
-	fmt.Println(res)
-
-	println("__________")
-
-	Ast(res)
-
-}
-
-/************************************************************ Lexer End *******************************************************************/
-
-/************************************************************ Parser Start *******************************************************************/
-type Tokenx struct {
-	Type  string
-	Value string
-}
-
-type Node struct {
-	Type     string
-	Value    string
-	Children []Node
-}
-
-func NewNode(Type string, Value string) *Node {
-	return &Node{Type: Type, Value: Value}
-}
-
-func AddChild(node *Node, child *Node) {
-	node.Children = append(node.Children, *child)
-}
-
-func ParseAST(tokens []Token) *Node {
-	root := NewNode("Root", "")
-
-	for _, token := range tokens {
-		switch token.Type {
-		case "package":
-			AddChild(root, NewNode("Idenpackagetifier", token.Value))
-		case "StringLiteral":
-			AddChild(root, NewNode("StringLiteral", token.Value))
-		case "NumberLiteral":
-			AddChild(root, NewNode("NumberLiteral", token.Value))
-		case "func":
-			AddChild(root, NewNode("func", token.Value))
-		case "main":
-			AddChild(root, NewNode("main", token.Value))
-
-		case "OpenParen":
-			AddChild(root, NewNode("OpenParen", token.Value))
-		case "CloseParen":
-			AddChild(root, NewNode("CloseParen", token.Value))
-		case "OpenBrace":
-			AddChild(root, NewNode("OpenBrace", token.Value))
-		case "CloseBrace":
-			AddChild(root, NewNode("CloseBrace", token.Value))
-		case "Plus":
-			AddChild(root, NewNode("Plus", token.Value))
-		case "Minus":
-			AddChild(root, NewNode("Minus", token.Value))
-		case "Asterisk":
-			AddChild(root, NewNode("Asterisk", token.Value))
-		case "Slash":
-			AddChild(root, NewNode("Slash", token.Value))
-		case "Equals":
-			AddChild(root, NewNode("Equals", token.Value))
-		case "blank space":
-			AddChild(root, NewNode("blank space", token.Value))
-		case "double quotes":
-			AddChild(root, NewNode("double quotes", token.Value))
-		case "print function":
-			AddChild(root, NewNode("print function", token.Value))
-
-		default:
-			AddChild(root, NewNode("identifier", token.Value))
-		}
-
-	}
-
-	return root
-}
-
-func PrintAST(node *Node, indent int) {
-	fmt.Printf("%s%s: %s\n", strings.Repeat(" ", indent), node.Type, node.Value)
-
-	for _, child := range node.Children {
-		PrintAST(&child, indent+1)
-	}
-}
-
-func Ast(T []Token) {
-	tokens := T
-
-	root := ParseAST(tokens)
-
-	// Print the AST tree.
-	PrintAST(root, 0)
-}
-
-/************************************************************ Parser End *******************************************************************/
 
 func go2cpp(source string) string {
 	functionVarMap := map[string]string{} // variable names encountered in the function so far, and their corresponding smart names
@@ -532,15 +327,60 @@ func go2cpp(source string) string {
 
 	return output
 }
-
 func main() {
-
 	debug := false
 	compile := true
 	clangFormat := true
-
 	inputFilename := "./go_test_code/test_first_1.txt"
 
+	// Gin web server setup
+	router := gin.Default()
+	router.LoadHTMLGlob("templates/*")
+
+	router.GET("/", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "index.html", nil)
+	})
+
+	router.POST("/convert", func(c *gin.Context) {
+		fmt.Println("Handling /convert request")
+		fmt.Println("URL:", c.Request.URL.Path)
+		fmt.Println("Method:", c.Request.Method)
+		inputType := c.PostForm("inputType")
+		var sourceData []byte
+		var err error
+
+		if inputType == "file" {
+			file, _, err := c.Request.FormFile("file")
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to read file"})
+				return
+			}
+			defer file.Close()
+
+			sourceData, err = ioutil.ReadAll(file)
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to read file"})
+				return
+			}
+		} else if inputType == "text" {
+			sourceData = []byte(c.PostForm("text"))
+		} else {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input type"})
+			return
+		}
+
+		output := `#include <bits/stdc++.h>` + go2cpp(string(sourceData))
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+
+		c.String(http.StatusOK, output)
+	})
+
+	router.Static("/static", "./static")
+
+	// Debugging and compilation logic
 	var sourceData []byte
 	var err error
 	if inputFilename != "" {
@@ -549,7 +389,7 @@ func main() {
 		sourceData, err = ioutil.ReadAll(os.Stdin)
 	}
 
-	ip := (string(sourceData))
+	ip := string(sourceData)
 	LEX(ip)
 
 	if err != nil {
@@ -568,7 +408,6 @@ func main() {
 		cmd.Stdout = &out
 		err = cmd.Run()
 		if err != nil {
-			// log.Println("clang-format is not available, the output will look ugly!")
 			cppSource = go2cpp(string(sourceData))
 		} else {
 			cppSource = out.String()
@@ -589,7 +428,6 @@ func main() {
 	tempFileName := tempFile.Name()
 	defer os.Remove(tempFileName)
 
-	// Compile the string in cppSource
 	cpp := "g++"
 	if cppenv := os.Getenv("CXX"); cppenv != "" {
 		cpp = cppenv
@@ -602,25 +440,16 @@ func main() {
 	cmd2.Stderr = &errors
 	err = cmd2.Run()
 	if err != nil {
-
 		cppSource = `
-
 template <typename T>
-	void _format_output(std::ostream& out, const T& str) 
-	{	
-		out << str;
-	}` + cppSource
-
+void _format_output(std::ostream& out, const T& str)
+{
+    out << str;
+}`
 		cppSource = `#include <bits/stdc++.h>` + cppSource
 		cppSource = formatting(cppSource)
-		//fmt.Println(cppSource)
-
 		outputFileName := "cpp_output/" + strings.TrimSuffix(strings.Split(inputFilename, "/")[2], ".txt") + ".cpp"
 		writeFile(outputFileName, cppSource)
-
-		// fmt.Println("Errors:")
-		// fmt.Println(errors.String())
-		//log.Fatal(err)
 	}
 	compiledBytes, err := ioutil.ReadFile(tempFileName)
 	if err != nil {
@@ -639,7 +468,168 @@ template <typename T>
 		//fmt.Println(cppSource)
 	}
 
+	router.Run(":3000")
 }
+
+// func main() {
+// 	router := gin.Default()
+
+// 	router.LoadHTMLGlob("templates/*")
+
+// 	router.GET("/", func(c *gin.Context) {
+// 		c.HTML(http.StatusOK, "index.html", nil)
+// 	})
+
+// 	router.POST("/convert", func(c *gin.Context) {
+// 		fmt.Println("Handling /convert request")
+// 		// Print request URL and method
+// 		fmt.Println("URL:", c.Request.URL.Path)
+// 		fmt.Println("Method:", c.Request.Method)
+// 		inputType := c.PostForm("inputType")
+// 		var sourceData []byte
+// 		var err error
+
+// 		if inputType == "file" {
+// 			file, _, err := c.Request.FormFile("file")
+// 			if err != nil {
+// 				c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to read file"})
+// 				return
+// 			}
+// 			defer file.Close()
+
+// 			sourceData, err = ioutil.ReadAll(file)
+// 			if err != nil {
+// 				c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to read file"})
+// 				return
+// 			}
+// 		} else if inputType == "text" {
+// 			sourceData = []byte(c.PostForm("text"))
+// 		} else {
+// 			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input type"})
+// 			return
+// 		}
+
+// 		output := go2cpp(string(sourceData))
+// 		if err != nil {
+// 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+// 			return
+// 		}
+
+// 		c.String(http.StatusOK, output)
+// 	})
+
+// 	router.Static("/static", "./static")
+
+// 	router.Run(":3000")
+// }
+
+// func main() {
+
+// 	debug := false
+// 	compile := true
+// 	clangFormat := true
+
+// 	inputFilename := "./go_test_code/test_first_1.txt"
+
+// 	var sourceData []byte
+// 	var err error
+// 	if inputFilename != "" {
+// 		sourceData, err = ioutil.ReadFile(inputFilename)
+// 	} else {
+// 		sourceData, err = ioutil.ReadAll(os.Stdin)
+// 	}
+
+// 	ip := (string(sourceData))
+// 	LEX(ip)
+
+// 	if err != nil {
+// 		log.Fatal(err)
+// 	}
+// 	if debug {
+// 		fmt.Println(go2cpp(string(sourceData)))
+// 		return
+// 	}
+
+// 	cppSource := "output.txt"
+// 	if clangFormat {
+// 		cmd := exec.Command("clang-format", "-style={BasedOnStyle: Webkit, ColumnLimit: 99}")
+// 		cmd.Stdin = strings.NewReader(go2cpp(string(sourceData)))
+// 		var out bytes.Buffer
+// 		cmd.Stdout = &out
+// 		err = cmd.Run()
+// 		if err != nil {
+// 			// log.Println("clang-format is not available, the output will look ugly!")
+// 			cppSource = go2cpp(string(sourceData))
+// 		} else {
+// 			cppSource = out.String()
+// 		}
+// 	} else {
+// 		cppSource = go2cpp(string(sourceData))
+// 	}
+
+// 	if !compile {
+// 		fmt.Println(cppSource)
+// 		return
+// 	}
+
+// 	tempFile, err := ioutil.TempFile("", "go2cpp*")
+// 	if err != nil {
+// 		log.Fatal(err)
+// 	}
+// 	tempFileName := tempFile.Name()
+// 	defer os.Remove(tempFileName)
+
+// 	// Compile the string in cppSource
+// 	cpp := "g++"
+// 	if cppenv := os.Getenv("CXX"); cppenv != "" {
+// 		cpp = cppenv
+// 	}
+// 	cmd2 := exec.Command(cpp, "-x", "c++", "-std=c++2a", "-O2", "-pipe", "-fPIC", "-Wfatal-errors", "-fpermissive", "-s", "-o", tempFileName, "-")
+// 	cmd2.Stdin = strings.NewReader(cppSource)
+// 	var compiled bytes.Buffer
+// 	var errors bytes.Buffer
+// 	cmd2.Stdout = &compiled
+// 	cmd2.Stderr = &errors
+// 	err = cmd2.Run()
+// 	if err != nil {
+
+// 		cppSource = `
+
+// template <typename T>
+// 	void _format_output(std::ostream& out, const T& str)
+// 	{
+// 		out << str;
+// 	}` + cppSource
+
+// 		cppSource = `#include <bits/stdc++.h>` + cppSource
+// 		cppSource = formatting(cppSource)
+// 		//fmt.Println(cppSource)
+
+// 		outputFileName := "cpp_output/" + strings.TrimSuffix(strings.Split(inputFilename, "/")[2], ".txt") + ".cpp"
+// 		writeFile(outputFileName, cppSource)
+
+// 		// fmt.Println("Errors:")
+// 		// fmt.Println(errors.String())
+// 		//log.Fatal(err)
+// 	}
+// 	compiledBytes, err := ioutil.ReadFile(tempFileName)
+// 	if err != nil {
+// 		log.Fatal(err)
+// 	}
+// 	outputFilename := ""
+// 	if len(os.Args) > 3 {
+// 		outputFilename = os.Args[3]
+// 	}
+// 	if outputFilename != "" {
+// 		err = ioutil.WriteFile(outputFilename, compiledBytes, 0755)
+// 		if err != nil {
+// 			log.Fatal(err)
+// 		}
+// 	} else {
+// 		//fmt.Println(cppSource)
+// 	}
+
+// }
 
 func writeFile(filename, data string) error {
 	f, err := os.Create(filename)
