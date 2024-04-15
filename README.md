@@ -27,15 +27,31 @@ The intended use is not to convert entire existing Go programs to C++, but to he
 * `g++` with support for C++20 is used for compiling the generated C++ code.
 * `clang-format` is used for formatting the generated C++ code.
 
-## Usage
+## How to Run
 
-Compile to executable:
+1. Clone the repository to your local machine:
 
-    go2cpp main.go -o main
+    ```bash
+    git clone https://github.com/poojaindulkar/Transpiler-GoToCpp.git
+    ```
 
-Output what the intermediate C++20 code looks like:
+2. Navigate to the project directory:
 
-    go2cpp main.go
+    ```bash
+    cd Transpiler-GoToCpp
+    ```
+
+3. Run the project with Go:
+
+    ```bash
+    go run .
+    ```
+
+4. Once the server is running, open your web browser and go to:
+
+    ```
+    http://localhost:3000
+    ```
 
 ## Example transformations
 
