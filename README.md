@@ -7,7 +7,7 @@ One of the goals is for the compiler to be able to compile itself.
 The intended use is not to convert entire existing Go programs to C++, but to help port parts of it to C++, or perhaps write programs from scratch and continually check that the program can be converted and compiled as C++.
 
 ## Data Flow Diagram
-![DFD](http://url/to/img.png)
+![DFD](https://github.com/poojaindulkar/Transpiler-GoToCpp/blob/main/img/DFD.png)
 ## Known issues
 
 * Only works with simple code samples, for now.
