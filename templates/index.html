@@ -195,6 +195,7 @@
                 rows="15"
                 placeholder="Output C++ Code"
               ></textarea>
+              <button id="copyButton" class="btn btn-primary mt-2">Copy</button>
             </div>
           </div>
       
@@ -214,6 +215,14 @@
             $("#fileInput").show();
           }
         });
+
+        // Copy to clipboard functionality
+    $("#copyButton").click(function () {
+        var outputTextarea = document.getElementById("output");
+        outputTextarea.select();
+        document.execCommand("copy");
+        alert("Copied to clipboard!");
+    });
 
         $("#conversionForm").submit(function (event) {
           event.preventDefault();
