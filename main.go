@@ -368,268 +368,102 @@ func main() {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input type"})
 			return
 		}
-
-		output := `#include <bits/stdc++.h>` + go2cpp(string(sourceData))
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		if debug {
+			fmt.Println(go2cpp(string(sourceData)))
 			return
 		}
 
-		c.String(http.StatusOK, output)
+		// output := `#include <bits/stdc++.h>` + go2cpp(string(sourceData))
+		// if err != nil {
+		// 	c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		// 	return
+		// }
+		cppSource := "output.txt"
+		if clangFormat {
+			cmd := exec.Command("clang-format", "-style={BasedOnStyle: Webkit, ColumnLimit: 99}")
+			cmd.Stdin = strings.NewReader(go2cpp(string(sourceData)))
+			var out bytes.Buffer
+			cmd.Stdout = &out
+			err = cmd.Run()
+			if err != nil {
+				// log.Println("clang-format is not available, the output will look ugly!")
+				cppSource = go2cpp(string(sourceData))
+			} else {
+				cppSource = out.String()
+			}
+		} else {
+			cppSource = go2cpp(string(sourceData))
+		}
+	
+		if !compile {
+			fmt.Println(cppSource)
+			return
+		}
+	
+		tempFile, err := ioutil.TempFile("", "go2cpp*")
+		if err != nil {
+			log.Fatal(err)
+		}
+		tempFileName := tempFile.Name()
+		defer os.Remove(tempFileName)
+	
+		// Compile the string in cppSource
+		cpp := "g++"
+		if cppenv := os.Getenv("CXX"); cppenv != "" {
+			cpp = cppenv
+		}
+		cmd2 := exec.Command(cpp, "-x", "c++", "-std=c++2a", "-O2", "-pipe", "-fPIC", "-Wfatal-errors", "-fpermissive", "-s", "-o", tempFileName, "-")
+		cmd2.Stdin = strings.NewReader(cppSource)
+		var compiled bytes.Buffer
+		var errors bytes.Buffer
+		cmd2.Stdout = &compiled
+		cmd2.Stderr = &errors
+		err = cmd2.Run()
+		if err != nil {
+	
+			cppSource = `
+	
+	template <typename T>
+		void _format_output(std::ostream& out, const T& str) 
+		{	
+			out << str;
+		}` + cppSource
+	
+			cppSource = `#include <bits/stdc++.h>` + cppSource
+			cppSource = formatting(cppSource)
+			fmt.Println(cppSource)
+			outputFileName := "cpp_test_output/" + strings.Split(inputFilename, "/")[2] + ".cpp"
+			writeFile(outputFileName, cppSource)
+	
+			// fmt.Println("Errors:")
+			// fmt.Println(errors.String())
+			//log.Fatal(err)
+		}
+		compiledBytes, err := ioutil.ReadFile(tempFileName)
+		if err != nil {
+			log.Fatal(err)
+		}
+		outputFilename := ""
+		if len(os.Args) > 3 {
+			outputFilename = os.Args[3]
+		}
+		if outputFilename != "" {
+			err = ioutil.WriteFile(outputFilename, compiledBytes, 0755)
+			if err != nil {
+				log.Fatal(err)
+			}
+		} else {
+			fmt.Println(cppSource)
+		}
+		c.String(http.StatusOK, cppSource)
 	})
 
 	router.Static("/static", "./static")
 
-	// Debugging and compilation logic
-	var sourceData []byte
-	var err error
-	if inputFilename != "" {
-		sourceData, err = ioutil.ReadFile(inputFilename)
-	} else {
-		sourceData, err = ioutil.ReadAll(os.Stdin)
-	}
-
-	ip := string(sourceData)
-	LEX(ip)
-
-	if err != nil {
-		log.Fatal(err)
-	}
-	if debug {
-		fmt.Println(go2cpp(string(sourceData)))
-		return
-	}
-
-	cppSource := "output.txt"
-	if clangFormat {
-		cmd := exec.Command("clang-format", "-style={BasedOnStyle: Webkit, ColumnLimit: 99}")
-		cmd.Stdin = strings.NewReader(go2cpp(string(sourceData)))
-		var out bytes.Buffer
-		cmd.Stdout = &out
-		err = cmd.Run()
-		if err != nil {
-			cppSource = go2cpp(string(sourceData))
-		} else {
-			cppSource = out.String()
-		}
-	} else {
-		cppSource = go2cpp(string(sourceData))
-	}
-
-	if !compile {
-		fmt.Println(cppSource)
-		return
-	}
-
-	tempFile, err := ioutil.TempFile("", "go2cpp*")
-	if err != nil {
-		log.Fatal(err)
-	}
-	tempFileName := tempFile.Name()
-	defer os.Remove(tempFileName)
-
-	cpp := "g++"
-	if cppenv := os.Getenv("CXX"); cppenv != "" {
-		cpp = cppenv
-	}
-	cmd2 := exec.Command(cpp, "-x", "c++", "-std=c++2a", "-O2", "-pipe", "-fPIC", "-Wfatal-errors", "-fpermissive", "-s", "-o", tempFileName, "-")
-	cmd2.Stdin = strings.NewReader(cppSource)
-	var compiled bytes.Buffer
-	var errors bytes.Buffer
-	cmd2.Stdout = &compiled
-	cmd2.Stderr = &errors
-	err = cmd2.Run()
-	if err != nil {
-		cppSource = `
-template <typename T>
-void _format_output(std::ostream& out, const T& str)
-{
-    out << str;
-}`
-		cppSource = `#include <bits/stdc++.h>` + cppSource
-		cppSource = formatting(cppSource)
-		outputFileName := "cpp_output/" + strings.TrimSuffix(strings.Split(inputFilename, "/")[2], ".txt") + ".cpp"
-		writeFile(outputFileName, cppSource)
-	}
-	compiledBytes, err := ioutil.ReadFile(tempFileName)
-	if err != nil {
-		log.Fatal(err)
-	}
-	outputFilename := ""
-	if len(os.Args) > 3 {
-		outputFilename = os.Args[3]
-	}
-	if outputFilename != "" {
-		err = ioutil.WriteFile(outputFilename, compiledBytes, 0755)
-		if err != nil {
-			log.Fatal(err)
-		}
-	} else {
-		//fmt.Println(cppSource)
-	}
 
 	router.Run(":3000")
 }
 
-// func main() {
-// 	router := gin.Default()
-
-// 	router.LoadHTMLGlob("templates/*")
-
-// 	router.GET("/", func(c *gin.Context) {
-// 		c.HTML(http.StatusOK, "index.html", nil)
-// 	})
-
-// 	router.POST("/convert", func(c *gin.Context) {
-// 		fmt.Println("Handling /convert request")
-// 		// Print request URL and method
-// 		fmt.Println("URL:", c.Request.URL.Path)
-// 		fmt.Println("Method:", c.Request.Method)
-// 		inputType := c.PostForm("inputType")
-// 		var sourceData []byte
-// 		var err error
-
-// 		if inputType == "file" {
-// 			file, _, err := c.Request.FormFile("file")
-// 			if err != nil {
-// 				c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to read file"})
-// 				return
-// 			}
-// 			defer file.Close()
-
-// 			sourceData, err = ioutil.ReadAll(file)
-// 			if err != nil {
-// 				c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to read file"})
-// 				return
-// 			}
-// 		} else if inputType == "text" {
-// 			sourceData = []byte(c.PostForm("text"))
-// 		} else {
-// 			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input type"})
-// 			return
-// 		}
-
-// 		output := go2cpp(string(sourceData))
-// 		if err != nil {
-// 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-// 			return
-// 		}
-
-// 		c.String(http.StatusOK, output)
-// 	})
-
-// 	router.Static("/static", "./static")
-
-// 	router.Run(":3000")
-// }
-
-// func main() {
-
-// 	debug := false
-// 	compile := true
-// 	clangFormat := true
-
-// 	inputFilename := "./go_test_code/test_first_1.txt"
-
-// 	var sourceData []byte
-// 	var err error
-// 	if inputFilename != "" {
-// 		sourceData, err = ioutil.ReadFile(inputFilename)
-// 	} else {
-// 		sourceData, err = ioutil.ReadAll(os.Stdin)
-// 	}
-
-// 	ip := (string(sourceData))
-// 	LEX(ip)
-
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
-// 	if debug {
-// 		fmt.Println(go2cpp(string(sourceData)))
-// 		return
-// 	}
-
-// 	cppSource := "output.txt"
-// 	if clangFormat {
-// 		cmd := exec.Command("clang-format", "-style={BasedOnStyle: Webkit, ColumnLimit: 99}")
-// 		cmd.Stdin = strings.NewReader(go2cpp(string(sourceData)))
-// 		var out bytes.Buffer
-// 		cmd.Stdout = &out
-// 		err = cmd.Run()
-// 		if err != nil {
-// 			// log.Println("clang-format is not available, the output will look ugly!")
-// 			cppSource = go2cpp(string(sourceData))
-// 		} else {
-// 			cppSource = out.String()
-// 		}
-// 	} else {
-// 		cppSource = go2cpp(string(sourceData))
-// 	}
-
-// 	if !compile {
-// 		fmt.Println(cppSource)
-// 		return
-// 	}
-
-// 	tempFile, err := ioutil.TempFile("", "go2cpp*")
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
-// 	tempFileName := tempFile.Name()
-// 	defer os.Remove(tempFileName)
-
-// 	// Compile the string in cppSource
-// 	cpp := "g++"
-// 	if cppenv := os.Getenv("CXX"); cppenv != "" {
-// 		cpp = cppenv
-// 	}
-// 	cmd2 := exec.Command(cpp, "-x", "c++", "-std=c++2a", "-O2", "-pipe", "-fPIC", "-Wfatal-errors", "-fpermissive", "-s", "-o", tempFileName, "-")
-// 	cmd2.Stdin = strings.NewReader(cppSource)
-// 	var compiled bytes.Buffer
-// 	var errors bytes.Buffer
-// 	cmd2.Stdout = &compiled
-// 	cmd2.Stderr = &errors
-// 	err = cmd2.Run()
-// 	if err != nil {
-
-// 		cppSource = `
-
-// template <typename T>
-// 	void _format_output(std::ostream& out, const T& str)
-// 	{
-// 		out << str;
-// 	}` + cppSource
-
-// 		cppSource = `#include <bits/stdc++.h>` + cppSource
-// 		cppSource = formatting(cppSource)
-// 		//fmt.Println(cppSource)
-
-// 		outputFileName := "cpp_output/" + strings.TrimSuffix(strings.Split(inputFilename, "/")[2], ".txt") + ".cpp"
-// 		writeFile(outputFileName, cppSource)
-
-// 		// fmt.Println("Errors:")
-// 		// fmt.Println(errors.String())
-// 		//log.Fatal(err)
-// 	}
-// 	compiledBytes, err := ioutil.ReadFile(tempFileName)
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
-// 	outputFilename := ""
-// 	if len(os.Args) > 3 {
-// 		outputFilename = os.Args[3]
-// 	}
-// 	if outputFilename != "" {
-// 		err = ioutil.WriteFile(outputFilename, compiledBytes, 0755)
-// 		if err != nil {
-// 			log.Fatal(err)
-// 		}
-// 	} else {
-// 		//fmt.Println(cppSource)
-// 	}
-
-// }
 
 func writeFile(filename, data string) error {
 	f, err := os.Create(filename)
