@@ -378,6 +378,7 @@ func main() {
 		// 	c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		// 	return
 		// }
+		LEX(string(sourceData))
 		cppSource := "output.txt"
 		if clangFormat {
 			cmd := exec.Command("clang-format", "-style={BasedOnStyle: Webkit, ColumnLimit: 99}")
@@ -394,19 +395,19 @@ func main() {
 		} else {
 			cppSource = go2cpp(string(sourceData))
 		}
-	
+
 		if !compile {
 			fmt.Println(cppSource)
 			return
 		}
-	
+
 		tempFile, err := ioutil.TempFile("", "go2cpp*")
 		if err != nil {
 			log.Fatal(err)
 		}
 		tempFileName := tempFile.Name()
 		defer os.Remove(tempFileName)
-	
+
 		// Compile the string in cppSource
 		cpp := "g++"
 		if cppenv := os.Getenv("CXX"); cppenv != "" {
@@ -420,7 +421,7 @@ func main() {
 		cmd2.Stderr = &errors
 		err = cmd2.Run()
 		if err != nil {
-	
+
 			cppSource = `
 	
 	template <typename T>
@@ -428,13 +429,13 @@ func main() {
 		{	
 			out << str;
 		}` + cppSource
-	
+
 			cppSource = `#include <bits/stdc++.h>` + cppSource
 			cppSource = formatting(cppSource)
 			fmt.Println(cppSource)
 			outputFileName := "cpp_test_output/" + strings.Split(inputFilename, "/")[2] + ".cpp"
 			writeFile(outputFileName, cppSource)
-	
+
 			// fmt.Println("Errors:")
 			// fmt.Println(errors.String())
 			//log.Fatal(err)
@@ -460,10 +461,8 @@ func main() {
 
 	router.Static("/static", "./static")
 
-
 	router.Run(":3000")
 }
-
 
 func writeFile(filename, data string) error {
 	f, err := os.Create(filename)
