@@ -433,7 +433,7 @@ func main() {
 			cppSource = `#include <bits/stdc++.h>` + cppSource
 			cppSource = formatting(cppSource)
 			fmt.Println(cppSource)
-			outputFileName := "cpp_test_output/" + strings.Split(inputFilename, "/")[2] + ".cpp"
+			outputFileName := "cpp_output/" + strings.Split(inputFilename, "/")[1] + ".cpp"
 			writeFile(outputFileName, cppSource)
 
 			// fmt.Println("Errors:")
