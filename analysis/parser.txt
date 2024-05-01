@@ -1,0 +1,34 @@
+Root: 
+├──  identifier: package
+├──  main: main
+├──  newline: \n
+├──  identifier: import
+├──  OpenParen: (
+├──  newline: \n
+├──  identifier: "fmt
+├──  double quotes: "
+├──  CloseParen: )
+├──  newline: \n
+├──  identifier: func
+├──  main: main
+├──  OpenParen: (
+├──  CloseParen: )
+├──  OpenBrace: {
+├──  newline: \n
+├──  identifier: var
+├──  identifier: n
+├──  identifier: byte
+├──  Equals: =
+├──  identifier: 65
+├──  newline: \n
+├──  identifier: fmt
+├──  identifier: .Println
+├──  OpenParen: (
+├──  identifier: "65
+├──  identifier: :", 
+├──  identifier: n
+├──  CloseParen: )
+├──  newline: \n
+├──  CloseBrace: }
+  
+ newline: \n

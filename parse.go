@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"strings"
+	"os"
 )
 
 type Tokenx struct {
@@ -23,6 +24,7 @@ func NewNode(Type string, Value string) *Node {
 func AddChild(node *Node, child *Node) {
 	node.Children = append(node.Children, *child)
 }
+
 
 func ParseAST(tokens []Token) *Node {
 	root := NewNode("Root", "")
@@ -64,7 +66,8 @@ func ParseAST(tokens []Token) *Node {
 			AddChild(root, NewNode("double quotes", token.Value))
 		case "print function":
 			AddChild(root, NewNode("print function", token.Value))
-
+		case "newline":
+			AddChild(root, NewNode("newline", token.Value))
 		default:
 			AddChild(root, NewNode("identifier", token.Value))
 		}
@@ -81,7 +84,45 @@ func PrintAST(node *Node, indent int) {
 		PrintAST(&child, indent+1)
 	}
 }
+func PrintASTToFile(node *Node, file *os.File, indent int) {
+	if node == nil {
+		return
+	}
 
+	// Print the node
+	fmt.Fprintf(file, "%s%s: %s\n", strings.Repeat(" ", indent), node.Type, node.Value)
+
+	// Print lines connecting the node to its children
+	for i, child := range node.Children {
+		if i == len(node.Children)-1 {
+			// Last child, no need for a connecting line
+			fmt.Fprintf(file, "%s \n", strings.Repeat(" ", indent+1))
+		} else {
+			// Print a connecting line
+			fmt.Fprintf(file, "%s├── ", strings.Repeat(" ", indent))
+		}
+
+		// Recursively print the child node
+		PrintASTToFile(&child, file, indent+1)
+	}
+}
+
+func AstToFile(T []Token) error {
+	root := ParseAST(T)
+
+	// Open the file for writing
+	file, err := os.Create("analysis/parser.txt")
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	// Print the AST tree to the file
+	PrintASTToFile(root, file, 0)
+
+	fmt.Println("AST written to analysis/parser.txt")
+	return nil
+}
 func Ast(T []Token) {
 	tokens := T
 
@@ -89,4 +130,8 @@ func Ast(T []Token) {
 
 	// Print the AST tree.
 	PrintAST(root, 0)
+	err := AstToFile(tokens)
+	if err != nil {
+		fmt.Println("Error:", err)
+	}
 }
