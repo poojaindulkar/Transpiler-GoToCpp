@@ -1,0 +1,78 @@
+┌─────────────────┬────────────┬───────┬─────────┐
+│ Type            │ Value      │ Line  │ Position│
+├─────────────────┼────────────┼───────┼─────────┤
+│ identifier      │ package    │ 1     │ 8       │
+│ main            │ main       │ 1     │ 13      │
+│ identifier      │ import     │ 3     │ 7       │
+│ OpenParen       │ (          │ 3     │ 9       │
+│ identifier      │ "fmt       │ 4     │ 6       │
+│ identifier      │ "
+        │ 5     │ 1       │
+│ CloseParen      │ )          │ 5     │ 2       │
+│ identifier      │ const      │ 7     │ 6       │
+│ identifier      │ a          │ 7     │ 8       │
+│ Equals          │ =          │ 7     │ 10      │
+│ identifier      │ 128        │ 7     │ 14      │
+│ identifier      │ const      │ 9     │ 6       │
+│ OpenParen       │ (          │ 9     │ 8       │
+│ identifier      │ b          │ 10    │ 3       │
+│ Equals          │ =          │ 10    │ 5       │
+│ identifier      │ 256        │ 10    │ 9       │
+│ identifier      │ c          │ 11    │ 3       │
+│ Equals          │ =          │ 11    │ 5       │
+│ identifier      │ 386        │ 11    │ 9       │
+│ CloseParen      │ )          │ 12    │ 2       │
+│ identifier      │ const      │ 14    │ 6       │
+│ identifier      │ d          │ 14    │ 8       │
+│ Equals          │ =          │ 14    │ 10      │
+│ identifier      │ 486        │ 14    │ 14      │
+│ Func            │ func       │ 16    │ 5       │
+│ main            │ main       │ 16    │ 10      │
+│ OpenParen       │ (          │ 16    │ 11      │
+│ CloseParen      │ )          │ 16    │ 12      │
+│ OpenBrace       │ {          │ 16    │ 14      │
+│ identifier      │ const      │ 17    │ 7       │
+│ identifier      │ e          │ 17    │ 9       │
+│ Equals          │ =          │ 17    │ 11      │
+│ identifier      │ 586        │ 17    │ 15      │
+│ identifier      │ const      │ 18    │ 7       │
+│ OpenParen       │ (          │ 18    │ 9       │
+│ identifier      │ f          │ 19    │ 4       │
+│ identifier      │ int        │ 19    │ 8       │
+│ identifier      │            │ 19    │ 13      │
+│ Equals          │ =          │ 19    │ 14      │
+│ identifier      │ 42         │ 19    │ 17      │
+│ identifier      │ g          │ 20    │ 4       │
+│ identifier      │ float      │ 20    │ 10      │
+│ identifier      │ 64         │ 20    │ 12      │
+│ Equals          │ =          │ 20    │ 14      │
+│ identifier      │ 3          │ 20    │ 16      │
+│ identifier      │ .14        │ 20    │ 19      │
+│ CloseParen      │ )          │ 21    │ 3       │
+│ identifier      │ const      │ 22    │ 7       │
+│ identifier      │ h          │ 22    │ 9       │
+│ Equals          │ =          │ 22    │ 11      │
+│ identifier      │ "asdf      │ 22    │ 17      │
+│ identifier      │ "
+	       │ 23    │ 2       │
+│ identifier      │ fmt        │ 23    │ 5       │
+│ identifier      │ .Println   │ 23    │ 13      │
+│ OpenParen       │ (          │ 23    │ 14      │
+│ identifier      │ a          │ 23    │ 15      │
+│ identifier      │ ,          │ 23    │ 17      │
+│ identifier      │ b          │ 23    │ 18      │
+│ identifier      │ ,          │ 23    │ 20      │
+│ identifier      │ c          │ 23    │ 21      │
+│ identifier      │ ,          │ 23    │ 23      │
+│ identifier      │ d          │ 23    │ 24      │
+│ identifier      │ ,          │ 23    │ 26      │
+│ identifier      │ e          │ 23    │ 27      │
+│ identifier      │ ,          │ 23    │ 29      │
+│ identifier      │ f          │ 23    │ 30      │
+│ identifier      │ ,          │ 23    │ 32      │
+│ identifier      │ g          │ 23    │ 33      │
+│ identifier      │ ,          │ 23    │ 35      │
+│ identifier      │ h          │ 23    │ 36      │
+│ CloseParen      │ )          │ 23    │ 37      │
+│ CloseBrace      │ }          │ 24    │ 2       │
+└─────────────────┴────────────┴───────┴─────────┘
