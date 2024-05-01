@@ -168,7 +168,7 @@ auto main() -> int
 ## Syntactic elements
 
 - [x] backtick quoted strings: <code>`</code> (one level deep only)
-- [ ] `iota`
+- [x] `iota`
 
 ## Keywords
 
@@ -202,11 +202,11 @@ auto main() -> int
 
 - [x] `fmt.Println`
 - [x] `fmt.Print`
-- [ ] `fmt.Printf` (partially)
-- [ ] `fmt.Sprintf`
+- [x] `fmt.Printf` (partially)
+- [x] `fmt.Sprintf`
 - [x] `strings.Contains`
 - [x] `strings.HasPrefix`
-- [ ] `strings.HasSuffix`
+- [x] `strings.HasSuffix`
 - [ ] `strings.Index`
 - [ ] `strings.Join`
 - [ ] `strings.NewReader`
