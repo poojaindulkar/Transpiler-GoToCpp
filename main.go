@@ -330,6 +330,7 @@ func go2cpp(source string) string {
 	// output = AddFunctions(output, usePrettyPrint, len(encounteredStructNames) > 0)
 	// output = AddIncludes(output)
 	// Write the map to a file
+	fmt.Println(codeMap)
 	outputFilePath := "analysis/generator.txt"
 	file, err := os.Create(outputFilePath)
 	if err != nil {
@@ -339,12 +340,15 @@ func go2cpp(source string) string {
 	defer file.Close()
 
 	// Write the table header
-	fmt.Fprintf(file, "\t%-30s\t%-30s\n", "C++ Code", "GO Code")
-	fmt.Fprintf(file, "%-30s%-30s\n", "──────────────────────────────┼", "───────────────────────────────")
+	fmt.Fprintf(file, "\t%-40s|\t%-40s\n", "Go Code", "C++ Code")
+	fmt.Fprintf(file, "%-40s%-40s\n", "────────────────────────────────────────────┼", "────────────────────────────────────────────")
 
-	// Write each key-value pair in tabular format
 	for key, value := range codeMap {
-		fmt.Fprintf(file, "%-30s:\t%-30s\n", value, key)
+		// Trim leading and trailing whitespace characters
+		key = strings.TrimSpace(key)
+		value = strings.TrimSpace(value)
+
+		fmt.Fprintf(file, "%-40s\t|\t%-40s\n", key, value)
 	}
 
 	fmt.Println("Map has been written to", outputFilePath)

@@ -4,7 +4,7 @@ import "fmt"
 
 var (
 	switchExpressionCounter int = -1
-	b                       bool
+	b bool
 )
 
 func main() {

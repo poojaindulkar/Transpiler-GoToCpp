@@ -1,32 +1,28 @@
-	C++ Code                      	GO Code                       
-──────────────────────────────┼───────────────────────────────
-const auto b = 256;           :		b = 256                     
-const auto c = 386;           :		c = 386                     
-auto main() -> int {          :	func main() {                
-const int f = 42;             :			f int     = 42             
-const double g = 3.14;        :			g float64 = 3.14           
-const auto h = "asdf";        :		const h = "asdf"            
-                             :	                             
-const auto a = 128;           :	const a = 128                
-_format_output(std::cout, a);
-std::cout << " ";
-_format_output(std::cout, b);
-std::cout << " ";
-_format_output(std::cout, c);
-std::cout << " ";
-_format_output(std::cout, d);
-std::cout << " ";
-_format_output(std::cout, e);
-std::cout << " ";
-_format_output(std::cout, f);
-std::cout << " ";
-_format_output(std::cout, g);
-std::cout << " ";
-_format_output(std::cout, h);
-std::cout << std::endl;:		fmt.Println(a, b, c, d, e, f, g, h)
-return 0;
-}
-                  :	}                            
-                              :	                              
-const auto d = 486;           :	const d = 486                
-const auto e = 586;           :		const e = 586               
+	Go Code                                 |	C++ Code                                
+────────────────────────────────────────────┼────────────────────────────────────────────
+}                                       	|	}                                       
+func main() {                           	|	auto main() -> int {                    
+// Test for prime numbers               	|	// Test for prime numbers               
+} else {                                	|	} else {                                
+}                                       	|	}                                       
+for i := 3; i <= maxDivisor; i += 2 {   	|	for (auto i = 3; i <= maxDivisor; i += 2) {
+if num%i == 0 {                         	|	if (num%i == 0) {                       
+}                                       	|	}                                       
+numbers := []int{2, 3, 17, 25, 29, 37}  	|	int numbers[] {2, 3, 17, 25, 29, 37}
+;  
+if isPrime(num) {                       	|	if (isPrime(num)) {                     
+fmt.Printf("%d is prime.\n", num)       	|	printf("%d is prime.\n", num);          
+func isPrime(num int) bool {            	|	auto isPrime(int num) -> bool {         
+if num <= 1 {                           	|	if (num <= 1) {                         
+return false                            	|	return false;                          
+return true                             	|	return true;                           
+fmt.Printf("%d is not prime.\n", num)   	|	printf("%d is not prime.\n", num);      
+return false                            	|	return false;                          
+return true                             	|	return true;                           
+for _, num := range numbers {           	|	for (auto  num  : numbers) {            
+}                                       	|	return 0;
+}                             
+                                        	|	                                        
+if num == 2 {                           	|	if (num == 2) {                         
+if num%2 == 0 {                         	|	if (num%2 == 0) {                       
+maxDivisor := int(Math.Sqrt(float64(num)))	|	auto maxDivisor = int(Math.Sqrt(float64(num)));
