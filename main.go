@@ -40,8 +40,9 @@ func go2cpp(source string) string {
 	inStruct := false
 	// usePrettyPrint := false
 	closingBracketNeedsASemicolon := false
+	codeMap := make(map[string]string)
 	for _, line := range strings.Split(source, "\n") {
-
+		// cppCode := ""
 		if debugOutput {
 			fmt.Fprintf(os.Stderr, "%s\n", line)
 		}
@@ -51,6 +52,7 @@ func go2cpp(source string) string {
 		trimmedLine := replacements.StripSingleLineComment(strings.TrimSpace(line))
 
 		if strings.HasPrefix(trimmedLine, "//") {
+			codeMap[line] = newLine
 			lines = append(lines, trimmedLine)
 			continue
 		}
@@ -58,6 +60,7 @@ func go2cpp(source string) string {
 			trimmedLine = trimmedLine[:len(trimmedLine)-1]
 		}
 		if len(trimmedLine) == 0 {
+			codeMap[line] = newLine
 			lines = append(lines, newLine)
 			continue
 		}
@@ -163,6 +166,7 @@ func go2cpp(source string) string {
 					useVarNames := []string{}
 					for _, name := range varNames {
 						name = strings.TrimSpace(name)
+
 						useVarNames = append(useVarNames, functionVarMap[name])
 					}
 					newLine = "auto [" + strings.Join(useVarNames, ", ") + "] = " + right
@@ -315,6 +319,7 @@ func go2cpp(source string) string {
 		}
 
 		lines = append(lines, newLine)
+		codeMap[line] = newLine
 	}
 	output := strings.Join(lines, "\n")
 
@@ -324,7 +329,25 @@ func go2cpp(source string) string {
 	// The order matters
 	// output = AddFunctions(output, usePrettyPrint, len(encounteredStructNames) > 0)
 	// output = AddIncludes(output)
+	// Write the map to a file
+	outputFilePath := "analysis/generator.txt"
+	file, err := os.Create(outputFilePath)
+	if err != nil {
+		fmt.Println("Error creating file:", err)
 
+	}
+	defer file.Close()
+
+	// Write the table header
+	fmt.Fprintf(file, "\t%-30s\t%-30s\n", "C++ Code", "GO Code")
+	fmt.Fprintf(file, "%-30s%-30s\n", "──────────────────────────────┼", "───────────────────────────────")
+
+	// Write each key-value pair in tabular format
+	for key, value := range codeMap {
+		fmt.Fprintf(file, "%-30s:\t%-30s\n", value, key)
+	}
+
+	fmt.Println("Map has been written to", outputFilePath)
 	return output
 }
 func main() {

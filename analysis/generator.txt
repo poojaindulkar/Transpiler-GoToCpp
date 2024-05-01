@@ -1,0 +1,32 @@
+	C++ Code                      	GO Code                       
+──────────────────────────────┼───────────────────────────────
+const auto b = 256;           :		b = 256                     
+const auto c = 386;           :		c = 386                     
+auto main() -> int {          :	func main() {                
+const int f = 42;             :			f int     = 42             
+const double g = 3.14;        :			g float64 = 3.14           
+const auto h = "asdf";        :		const h = "asdf"            
+                             :	                             
+const auto a = 128;           :	const a = 128                
+_format_output(std::cout, a);
+std::cout << " ";
+_format_output(std::cout, b);
+std::cout << " ";
+_format_output(std::cout, c);
+std::cout << " ";
+_format_output(std::cout, d);
+std::cout << " ";
+_format_output(std::cout, e);
+std::cout << " ";
+_format_output(std::cout, f);
+std::cout << " ";
+_format_output(std::cout, g);
+std::cout << " ";
+_format_output(std::cout, h);
+std::cout << std::endl;:		fmt.Println(a, b, c, d, e, f, g, h)
+return 0;
+}
+                  :	}                            
+                              :	                              
+const auto d = 486;           :	const d = 486                
+const auto e = 586;           :		const e = 586               
