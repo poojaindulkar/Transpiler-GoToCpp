@@ -42,9 +42,14 @@ func (l *Lexer) NextToken() *Token {
 		pos := l.pos - strings.LastIndex(l.input[:l.pos], "\n")
 
 		if strings.HasPrefix(tokenValue, "\r") || strings.HasPrefix(tokenValue, "\n") {
-			return &Token{Type: tokenType, Value: "\n", Line: line, Pos: pos}
+			// return &Token{Type: tokenType, Value: "\n", Line: line, Pos: pos}
+			tokenValue="\\n"
 		}
-
+		index:=strings.LastIndex(tokenValue,"\"\r\n")
+		if index != -1 {
+			tokenValue =strings.TrimRight(tokenValue[:index+1], "\r\n")
+			
+		}
 		switch tokenValue {
 		case "package main":
 			tokenType = "package"
@@ -76,7 +81,7 @@ func (l *Lexer) NextToken() *Token {
 			tokenType = "double quotes"
 		case "fmt.Println":
 			tokenType = "print function"
-		case "\n": // Newline character
+		case "\\n": 
 			tokenType = "newline"
 		default:
 			tokenType = "identifier"
@@ -92,7 +97,7 @@ func (l *Lexer) NextToken() *Token {
 
 func LEX(input string) error {
 	fmt.Println(input)
-	outputFileName := "./lexer/lexer.txt" // Specify the output file name here
+	outputFileName := "./analysis/lexer.txt" // Specify the output file name here
 
 	file, err := os.Create(outputFileName)
 	if err != nil {

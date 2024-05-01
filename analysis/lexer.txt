@@ -1,0 +1,36 @@
+┌─────────────────┬────────────┬───────┬─────────┐
+│ Type            │ Value      │ Line  │ Position│
+├─────────────────┼────────────┼───────┼─────────┤
+│ identifier      │ package    │ 1     │ 8       │
+│ main            │ main       │ 1     │ 13      │
+│ newline         │ \n         │ 3     │ 1       │
+│ identifier      │ import     │ 3     │ 7       │
+│ OpenParen       │ (          │ 3     │ 9       │
+│ newline         │ \n         │ 4     │ 2       │
+│ identifier      │ "fmt       │ 4     │ 6       │
+│ double quotes   │ "          │ 5     │ 1       │
+│ CloseParen      │ )          │ 5     │ 2       │
+│ newline         │ \n         │ 7     │ 1       │
+│ Func            │ func       │ 7     │ 5       │
+│ main            │ main       │ 7     │ 10      │
+│ OpenParen       │ (          │ 7     │ 11      │
+│ CloseParen      │ )          │ 7     │ 12      │
+│ OpenBrace       │ {          │ 7     │ 14      │
+│ newline         │ \n         │ 8     │ 2       │
+│ identifier      │ var        │ 8     │ 5       │
+│ identifier      │ n          │ 8     │ 7       │
+│ identifier      │ byte       │ 8     │ 12      │
+│ Equals          │ =          │ 8     │ 14      │
+│ identifier      │ 65         │ 8     │ 17      │
+│ newline         │ \n         │ 9     │ 2       │
+│ identifier      │ fmt        │ 9     │ 5       │
+│ identifier      │ .Println   │ 9     │ 13      │
+│ OpenParen       │ (          │ 9     │ 14      │
+│ identifier      │ "65        │ 9     │ 17      │
+│ identifier      │ :",        │ 9     │ 21      │
+│ identifier      │ n          │ 9     │ 22      │
+│ CloseParen      │ )          │ 9     │ 23      │
+│ newline         │ \n         │ 10    │ 1       │
+│ CloseBrace      │ }          │ 10    │ 2       │
+│ newline         │ \n         │ 11    │ 1       │
+└─────────────────┴────────────┴───────┴─────────┘
