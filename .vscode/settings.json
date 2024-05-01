@@ -2,5 +2,8 @@
     "files.associations": {
         "*.tcc": "cpp",
         "iostream": "cpp"
+    },
+    "go.toolsEnvVars": {
+        "GOPATH": "C:\\Users\\pooja\\go"
     }
 }
